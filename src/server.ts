@@ -16,7 +16,7 @@ console.log("EMAIL_USER:", process.env.EMAIL_USER);
 
 const app = express();
 
-const PORT = process.env.PORT || 5000;
+const PORT =Number( process.env.PORT || 5000);
 
 // Middleware
 app.use(cors());
@@ -48,7 +48,7 @@ const startServer = async (): Promise<void> => {
   try {
     await connectDB();
 
-    app.listen(PORT, () => {
+    app.listen(PORT,"0.0.0.0", () => {
       console.log(`Server running on http://localhost:${PORT}`);
       console.log(
         `Swagger UI available at http://localhost:${PORT}/api-docs`
