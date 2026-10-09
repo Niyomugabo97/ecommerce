@@ -19,7 +19,6 @@ const userSchema = new Schema<IUser>(
     email: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
     },
@@ -39,6 +38,8 @@ const userSchema = new Schema<IUser>(
     timestamps: true,
   }
 );
+// Create an index on the email field for faster lookups
+userSchema.index({email:1});
 
 const User = mongoose.model<IUser>("User", userSchema);
 

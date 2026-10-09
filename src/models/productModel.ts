@@ -9,6 +9,7 @@ export interface IProduct extends Document {
 }
 
 const productSchema = new Schema<IProduct>(
+  
   {
     name: {
       type: String,
@@ -35,7 +36,12 @@ const productSchema = new Schema<IProduct>(
   {
     timestamps: true,
   },
+
 );
+
+
+//creation model index for faster lookups
+productSchema.index({name:1, category:1, price:1});
 //this is where we create our model
 const Product = mongoose.model<IProduct>("Product", productSchema);
 

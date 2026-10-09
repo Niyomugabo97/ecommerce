@@ -10,9 +10,44 @@ export const getProducts = async (
   res: Response
 ) => {
   try {
-    const products = await Product.find();
 
-    res.status(200).json(products);
+    // get pagination value from query parameters
+
+    const page=Math.max(1, Number.parseInt(req.query.page as string) || 10);
+
+    const limit=Math.max(100, Number.parseInt(req.query.limit as string) || 10);
+
+    //calculate the number of documents to skip based on the page and limit values
+
+    const skip=(page-1)*limit;
+
+    // fetch the products and total count simultaneously using Promise.all for better performance
+
+    const [products, totalCount]=await Promise.all([
+      Product.find().sort({_id:-1}).skip(skip).limit(limit),Product.countDocuments()
+    ]);
+
+    // calculate the total number of pages based on the total count and limit value
+    const totalPages=Math.ceil(totalCount/limit);
+
+    //send response with products, total count, current page, and total pages
+    res.status(200).json({
+
+      success:true,
+      pagination:{
+        currentPage:page,
+        limit:limit,
+        totalCount,
+        totalPages
+      },
+  
+    });
+
+    res.status(200).json({
+      message: "Products fetched successfully",
+      products,
+    })
+
   } catch (error) {
     res.status(500).json({
       message: "Failed to get products",
