@@ -74,7 +74,7 @@ export const register = async (
       name,
       email,
       password: hashedPassword,
-      role:"user"
+      
     });
 
     // Send welcome email
