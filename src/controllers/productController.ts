@@ -13,7 +13,7 @@ export const getProducts = async (
 
     // get pagination value from query parameters
 
-    const page=Math.max(1, Number.parseInt(req.query.page as string) || 10);
+    const page=Math.max(1, Number.parseInt(req.query.page as string) || 1);
 
     const limit=Math.max(100, Number.parseInt(req.query.limit as string) || 10);
 
@@ -24,7 +24,7 @@ export const getProducts = async (
     // fetch the products and total count simultaneously using Promise.all for better performance
 
     const [products, totalCount]=await Promise.all([
-      Product.find().sort({_id:-1}).skip(skip).limit(limit),Product.countDocuments()
+      Product.find().sort({createdAt:-1}).skip(skip).limit(limit),Product.countDocuments()
     ]);
 
     // calculate the total number of pages based on the total count and limit value
@@ -35,7 +35,7 @@ export const getProducts = async (
 
       success:true,
       // display products
-      product:products,
+      products,
       pagination:{
         currentPage:page,
         limit:limit,
@@ -44,11 +44,6 @@ export const getProducts = async (
       },
 
     });
-
-    res.status(200).json({
-      message: "Products fetched successfully",
-      products,
-    })
 
   } catch (error) {
     res.status(500).json({
