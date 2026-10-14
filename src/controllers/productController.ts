@@ -35,7 +35,7 @@ export const getProducts = async (
 
       success:true,
       // display products
-      products,
+      product:products,
       pagination:{
         currentPage:page,
         limit:limit,
