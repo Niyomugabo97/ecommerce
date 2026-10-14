@@ -1,9 +1,11 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+export type UserRole="admin" | "user";
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
+  role: UserRole;
   resetPasswordCodeHash?: string;
   resetPasswordExpires?: Date;
 }
@@ -33,6 +35,11 @@ const userSchema = new Schema<IUser>(
     resetPasswordExpires: {
       type: Date,
     },
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
+    }
   },
   {
     timestamps: true,

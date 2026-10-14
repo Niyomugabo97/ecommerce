@@ -30,17 +30,19 @@ export const getProducts = async (
     // calculate the total number of pages based on the total count and limit value
     const totalPages=Math.ceil(totalCount/limit);
 
-    //send response with products, total count, current page, and total pages
+    //  send response with products, total count, current page, and total pages
     res.status(200).json({
 
       success:true,
+      // display products
+      products,
       pagination:{
         currentPage:page,
         limit:limit,
         totalCount,
         totalPages
       },
-  
+
     });
 
     res.status(200).json({

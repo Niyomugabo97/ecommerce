@@ -1,14 +1,14 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 //this is where we define our schema or model
-export interface IProduct extends Document {
+export interface product extends Document {
   name: string;
   category: string;
   price: number;
   image: string;
 }
 
-const productSchema = new Schema<IProduct>(
+const productSchema = new Schema<product>(
   
   {
     name: {
@@ -43,6 +43,6 @@ const productSchema = new Schema<IProduct>(
 //creation model index for faster lookups
 productSchema.index({name:1, category:1, price:1});
 //this is where we create our model
-const Product = mongoose.model<IProduct>("Product", productSchema);
+const Product = mongoose.model<product>("Product", productSchema);
 
 export default Product;
