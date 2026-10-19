@@ -5,6 +5,7 @@ export interface product extends Document {
   name: string;
   category: string;
   price: number;
+  discountedPrice: number;
   image: string;
 }
 
@@ -26,6 +27,10 @@ const productSchema = new Schema<product>(
     price: {
       type: Number,
       required: true,
+    },
+    discountedPrice:{
+      type:Number,
+      required:true,
     },
     image:{
       type:String,
