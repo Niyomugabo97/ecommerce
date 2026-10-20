@@ -80,11 +80,11 @@ export const createProduct = async (
   res: Response
 ) => {
   try {
-    const { name, category, price } = req.body;
+    const { name, category, price,discountedPrice } = req.body;
 
-    if (!name || !category || price === undefined) {
+    if (!name || !category || price === undefined || !discountedPrice) {
       return res.status(400).json({
-        message: "Name, category and price are required",
+        message: "Name, category and price discount price are required",
       });
     }
 
@@ -119,6 +119,7 @@ export const createProduct = async (
       name,
       category,
       price,
+      discountedPrice,
       image: result.secure_url, // Save the image path to the database
     });
 
