@@ -1,6 +1,5 @@
 import "./config";
 import express from "express";
-import transporter from "./config/mail";
 import cors from "cors";
 
 import connectDB from "./config/db";
@@ -9,6 +8,9 @@ import authRoutes from "./routes/authRoutes";
 
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./docs/swagger";
+
+import orderRoutes from "./routes/orderRoutes";
+import addressRoutes from "./routes/addressRoute";
 
 console.log("EMAIL_HOST:", process.env.EMAIL_HOST);
 console.log("EMAIL_PORT:", process.env.EMAIL_PORT);
@@ -22,6 +24,8 @@ const PORT =Number( process.env.PORT || 5000);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/orders", orderRoutes);
+app.use("/api/addresses", addressRoutes);
 
 // Swagger
 app.use(
