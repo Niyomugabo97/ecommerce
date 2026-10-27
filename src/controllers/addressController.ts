@@ -35,8 +35,8 @@ export const createAddress = async(req:Request,res:Response):Promise<void> =>{
         isDefault,
      }=req.body;
 
-     const shouldBeDefault = isDefault === "true";
-     const existingAdresses = await Address.find({user:userId});
+     const shouldBeDefault = isDefault === true || isDefault === "true";
+     const hasExistingAddresses = await Address.exists({user:userId});
 
      if(shouldBeDefault){
         await Address.updateMany(
@@ -54,7 +54,7 @@ export const createAddress = async(req:Request,res:Response):Promise<void> =>{
         province,
         country,
         postalCode,
-        isDefault:shouldBeDefault || !existingAdresses,
+        isDefault:shouldBeDefault || !hasExistingAddresses,
     });
 
     res.status(201).json(address);
@@ -148,4 +148,3 @@ export const updateAddresses= async(
 
 
 };
-

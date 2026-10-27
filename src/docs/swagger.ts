@@ -20,6 +20,7 @@ const options: swaggerJSDoc.Options = {
     tags: [
       { name: "Authentication", description: "Registration, login, and accounts" },
       { name: "Products", description: "Public product catalog and admin product management" },
+      { name: "Addresses", description: "Customer address management" },
       { name: "Orders", description: "Customer order operations" },
       { name: "Admin", description: "Administrator-only store management" },
     ],
@@ -70,6 +71,21 @@ const options: swaggerJSDoc.Options = {
             name: { type: "string", example: "Alex Example" },
             email: { type: "string", format: "email", example: "alex@example.com" },
             role: { type: "string", enum: ["user", "admin"], example: "user" },
+          },
+        },
+        Address: {
+          type: "object",
+          properties: {
+            _id: { type: "string", example: "68db123456789abcdef01234" },
+            user: { type: "string", example: "68db123456789abcdef01234" },
+            fullName: { type: "string", example: "Alex Example" },
+            phoneNumber: { type: "string", example: "+1-555-0100" },
+            street: { type: "string", example: "123 Main Street" },
+            city: { type: "string", example: "Springfield" },
+            province: { type: "string", example: "Illinois" },
+            country: { type: "string", example: "United States" },
+            postalCode: { type: "string", example: "62701" },
+            isDefault: { type: "boolean", example: true },
           },
         },
         AuthResponse: {
