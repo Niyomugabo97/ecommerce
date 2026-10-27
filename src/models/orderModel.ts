@@ -15,6 +15,7 @@ export interface IOrder extends Document {
  shippingAddress:{
   fullName: string;
   phoneNumber: string;
+  street: string;
   city: string;
   province?:string;
   country:string;
@@ -73,6 +74,10 @@ const orderSchema = new Schema<IOrder>({
           type: String,
           required: true,
         },
+        street: {
+          type: String,
+          required: true,
+        },
         city: {
           type: String,
           required: true,
@@ -110,7 +115,6 @@ const orderSchema = new Schema<IOrder>({
     );
 // creation of model and export
     export default mongoose.model<IOrder>("Order", orderSchema);
-
 
 
 

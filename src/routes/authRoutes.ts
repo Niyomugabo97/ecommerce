@@ -5,7 +5,9 @@ import {
   login,
   requestPasswordReset,
   resetPassword,
+  getCurrentUser,
 } from "../controllers/authController";
+import authMiddleware from "../middleware/authMiddleware";
 
 const router = Router();
 
@@ -13,7 +15,8 @@ const router = Router();
  * @swagger
  * /api/auth/register:
  *   post:
- *     summary: Register a new user
+ *     summary: Register a customer account
+ *     description: Public registration always creates a user-role account. Admin privileges must be provisioned by the backend operator.
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -38,6 +41,10 @@ const router = Router();
  *     responses:
  *       201:
  *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
  *       400:
  *         description: Invalid input
  *       409:
@@ -49,7 +56,7 @@ router.post("/register", register);
  * @swagger
  * /api/auth/login:
  *   post:
- *     summary: Login user
+ *     summary: Log in a user or administrator
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -70,12 +77,38 @@ router.post("/register", register);
  *     responses:
  *       200:
  *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
  *       400:
  *         description: Email and password are required
  *       401:
  *         description: Invalid email or password
  */
 router.post("/login", login);
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Get the authenticated account
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user profile and role
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Missing or invalid token
+ *       404:
+ *         description: User not found
+ */
+router.get("/me", authMiddleware, getCurrentUser);
 
 //swagger documentation for forgot password and reset password routes
 

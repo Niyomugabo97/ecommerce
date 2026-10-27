@@ -11,6 +11,7 @@ import swaggerSpec from "./docs/swagger";
 
 import orderRoutes from "./routes/orderRoutes";
 import addressRoutes from "./routes/addressRoute";
+import adminRoutes from "./routes/adminRoutes";
 
 console.log("EMAIL_HOST:", process.env.EMAIL_HOST);
 console.log("EMAIL_PORT:", process.env.EMAIL_PORT);
@@ -26,8 +27,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/orders", orderRoutes);
 app.use("/api/addresses", addressRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Swagger
+app.get("/api-docs.json", (_req, res) => {
+  res.json(swaggerSpec);
+});
+
 app.use(
   "/api-docs",
   swaggerUi.serve,

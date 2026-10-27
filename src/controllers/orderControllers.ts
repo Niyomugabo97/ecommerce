@@ -2,10 +2,7 @@ import { Request,Response } from "express";
 import mongoose from "mongoose";    
 import Order from "../models/orderModel";
 import Product from "../models/productModel";
-
-type AuthRequest = Request & {
-    userId?: string;
-};
+import { AuthRequest } from "../middleware/authMiddleware";
 
 const getUserId =(req:AuthRequest) =>{
     return req.userId;
@@ -19,21 +16,21 @@ export const createOrder = async (req:Request, res:Response) =>{
             return;
         }
 
-        const {items,shippingAddress,paymentStatus,orderStatus} = req.body;
+        const { items, shippingAddress, paymentMethod } = req.body;
 
         if(!Array.isArray(items) || items.length===0){
             res.status(400).json({message:"Order items are required"});
             return;
         }
 
-        if(!shippingAddress || !shippingAddress.fullName || !shippingAddress.phone || !shippingAddress.street || !shippingAddress.city || !shippingAddress.country){
+        if(!shippingAddress || !shippingAddress.fullName || !(shippingAddress.phoneNumber || shippingAddress.phone) || !shippingAddress.street || !shippingAddress.city || !shippingAddress.country){
             res.status(400).json({message:"Shipping address is required"});
             return;
         }
 
         const allowedPaymentMethods = ["cashOnDelivery","onlinePayment"];
-        if(!paymentStatus || !allowedPaymentMethods.includes(paymentStatus)){
-            res.status(400).json({message:"Payment status is required and must be one of the following: cashOnDelivery, onlinePayment"});
+        if(!paymentMethod || !allowedPaymentMethods.includes(paymentMethod)){
+            res.status(400).json({message:"Payment method must be cashOnDelivery or onlinePayment"});
             return;
         }
 
@@ -42,25 +39,25 @@ export const createOrder = async (req:Request, res:Response) =>{
 
         for (const item of items){
             const productId= item.productId ?? item.product;
-            const quality = Number(item.quality);
+            const quantity = Number(item.quantity ?? item.quality);
 
-            if(!mongoose.isValidObjectId(productId) || !Number.isSafeInteger(quality) || quality<=1){
+            if(!mongoose.isValidObjectId(productId) || !Number.isSafeInteger(quantity) || quantity<=0){
                 res.status(400).json({message:`Product ${productId} is invalid`});
                 return;
             }
             const product = await Product.findById(productId);
-            if(!product){
+            if(!product || product.isPublished === false){
                 res.status(400).json({message:`Product ${productId} not found`});
                 return;
             }
             orderItems.push({
                 product:productId,
-                quality,
+                quantity,
                 name:product.name,
                 image:product.image,
-                price:product.price,
+                price:product.discountedPrice ?? product.price,
             });
-            itemsPrice+=product.price*quality;
+            itemsPrice+=(product.discountedPrice ?? product.price)*quantity;
         }
         const shippingPrice = 0;
         const totalPrice = itemsPrice+shippingPrice;
@@ -68,9 +65,17 @@ export const createOrder = async (req:Request, res:Response) =>{
         const order = await Order.create({
             user:userId,
             items:orderItems,
-            shippingAddress,
-            paymentStatus,
-            orderStatus,
+            shippingAddress: {
+                fullName: shippingAddress.fullName,
+                phoneNumber: shippingAddress.phoneNumber ?? shippingAddress.phone,
+                street: shippingAddress.street,
+                city: shippingAddress.city,
+                province: shippingAddress.province,
+                country: shippingAddress.country,
+            },
+            paymentMethod,
+            paymentStatus: "pending",
+            orderStatus: "pending",
             itemsPrice,
             shippingPrice,
             totalPrice,
@@ -114,9 +119,17 @@ export const getOrderById = async(
             res.status(401).json({message:"Authentication required"});
             return;
         }
+        if(!mongoose.isValidObjectId(req.params.id)){
+            res.status(400).json({message:"Invalid order ID"});
+            return;
+        }
         const order = await Order.findById(req.params.id);
         if(!order){
             res.status(404).json({message:"Order not found"});
+            return;
+        }
+        if(order.user.toString() !== userId && (req as AuthRequest).userRole !== "admin"){
+            res.status(403).json({message:"You are not allowed to access this order"});
             return;
         }
         res.status(200).json(order);
@@ -137,9 +150,21 @@ export const cancelOrder= async(
             res.status(401).json({message:"Authentication required"});
             return;
         }
+        if(!mongoose.isValidObjectId(req.params.id)){
+            res.status(400).json({message:"Invalid order ID"});
+            return;
+        }
         const order = await Order.findById(req.params.id);
         if(!order){
             res.status(404).json({message:"Order not found"});
+            return;
+        }
+        if(order.user.toString() !== userId){
+            res.status(403).json({message:"You are not allowed to cancel this order"});
+            return;
+        }
+        if(order.orderStatus !== "pending" && order.orderStatus !== "confirmed"){
+            res.status(400).json({message:"Only pending or confirmed orders can be cancelled"});
             return;
         }
         order.orderStatus="cancelled";
@@ -151,7 +176,3 @@ export const cancelOrder= async(
         res.status(500).json({message:"Failed to cancel order"});
     }
 }
-
-
-
-

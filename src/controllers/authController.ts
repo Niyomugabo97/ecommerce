@@ -9,6 +9,7 @@ import {
 } from "crypto";
 
 import User from "../models/userModel";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 import {
   sendPasswordResetCodeEmail,
@@ -129,6 +130,7 @@ export const register = async (
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -195,6 +197,7 @@ export const login = async (
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -202,6 +205,34 @@ export const login = async (
 
     res.status(500).json({
       message: "Login failed",
+    });
+  }
+};
+
+export const getCurrentUser = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const user = await User.findById(req.userId).select("_id name email role");
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (error) {
+    console.error("Get current user error:", error);
+    res.status(500).json({
+      message: "Unable to get current user",
     });
   }
 };

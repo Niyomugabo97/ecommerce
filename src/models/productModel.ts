@@ -7,6 +7,7 @@ export interface product extends Document {
   price: number;
   discountedPrice: number;
   image: string;
+  isPublished: boolean;
 }
 
 const productSchema = new Schema<product>(
@@ -36,6 +37,11 @@ const productSchema = new Schema<product>(
       type:String,
       required:true,
 
+    },
+    isPublished: {
+      type: Boolean,
+      default: true,
+      required: true,
     },
   },
   {
